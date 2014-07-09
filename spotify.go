@@ -40,6 +40,17 @@ func getVolume() string{
     return s
 }
 
+func changeVolume(commands map[string]string, volumeAmount int) {
+    words := strings.Fields(getVolume())
+    volume := words[0]
+    inputValue, err := strconv.Atoi(volume)
+    if err != nil {
+        fmt.Println(err)
+    }
+    outputValue := strconv.Itoa(inputValue + volumeAmount)
+    execute(format(commands["volumeUp"], outputValue))
+}
+
 func format(command, key string) string {
     return fmt.Sprintf(command, key)
 }
@@ -53,8 +64,10 @@ func main() {
     commands["playPause"] = "to playpause"
     commands["playTrack"] = "to play track \"spotify:track:%s\""
     commands["playPlaylist"] = "to play track \"spotify:user:ni_co:playlist:%s\""
-    commands["shuffleOn"] = "to set repeating to true"
-    commands["shuffleOff"] = "to set repeating to false"
+    commands["repeatOn"] = "to set repeating to true"
+    commands["repeatOff"] = "to set repeating to false"
+    commands["shuffleOn"] = "to set shuffling to true"
+    commands["shuffleOff"] = "to set shuffling to false"
     commands["volumeUp"] = "to set sound volume to %s"
     commands["quit"] = "to quit"
 
@@ -74,36 +87,52 @@ func main() {
         } else if(os.Args[1] == "previous"){
             execute(commands["previousTrack"])
         } else if(os.Args[1] == "volume"){
-            fmt.Print(getVolume())
+            if(len(os.Args) == 3){
+                inputValue, err := strconv.Atoi(os.Args[2])
+                if err != nil {
+                    fmt.Println(err)
+                }
+                outputValue := strconv.Itoa(inputValue)
+                execute(format(commands["volumeUp"], outputValue))
+            } else {
+                fmt.Print(getVolume())
+            }
         } else if(os.Args[1] == "up") {
-            words := strings.Fields(getVolume())
-            volume := words[0]
-            inputValue, err := strconv.Atoi(volume)
-            if err != nil {
-                fmt.Println(err)
-            }
-            outputValue := strconv.Itoa(inputValue + 10)
-            execute(format(commands["volumeUp"], outputValue))
+            changeVolume(commands, 10)
         } else if(os.Args[1] == "down") {
-            words := strings.Fields(getVolume())
-            volume := words[0]
-            inputValue, err := strconv.Atoi(volume)
-            if err != nil {
-                fmt.Println(err)
+            changeVolume(commands, -10)
+        } else if(os.Args[1] == "shuffle"){
+            if(len(os.Args) == 3){
+                if(os.Args[2] == "on"){
+                    execute(commands["shuffleOn"])
+                } else if (os.Args[2] == "off"){
+                    execute(commands["shuffleOff"])
+                }
             }
-            outputValue := strconv.Itoa(inputValue - 10)
-            execute(format(commands["volumeUp"], outputValue))
+        } else if(os.Args[1] == "repeat"){
+            if(len(os.Args) == 3){
+                if(os.Args[2] == "on"){
+                    execute(commands["repeatOn"])
+                } else if (os.Args[2] == "off"){
+                    execute(commands["repeatOff"])
+                }
+            }
         } else {
             fmt.Println("Command not found")
         }
     } else {
         fmt.Println("Spotify Options")
-        fmt.Println("   play           = Start playing Spotify")
-        fmt.Println("   play <URI>     = Start playing specified Spotify URI")
-        fmt.Println("   playlist <URI> = Start playing playlist Spotify URI")
-        fmt.Println("   pause          = Pause Spotify")
-        fmt.Println("   next           = Play next song")
-        fmt.Println("   previous       = Play previous song")
-        fmt.Println("   volume         = Get volume of Spotify")
+        fmt.Println("   play             = Start playing Spotify")
+        fmt.Println("   play <uri>       = Start playing specified Spotify URI")
+        fmt.Println("   playlist <uri>   = Start playing playlist Spotify URI")
+        fmt.Println("   pause            = Pause Spotify")
+        fmt.Println("   next             = Play next song")
+        fmt.Println("   previous         = Play previous song")
+        fmt.Println("   shuffle <on/off> = Shuffle on or off?")
+        fmt.Println("   repeat <on/off>  = Repeat on or off?")
+        fmt.Println("   volume           = Get volume of Spotify")
+        fmt.Println("   volume <amount>  = Set volume by Amount")
+        fmt.Println("   up               = Increase volume by 10%")
+        fmt.Println("   down             = Decrease volume by 10%")
     }
 }
