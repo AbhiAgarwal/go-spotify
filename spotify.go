@@ -3,25 +3,45 @@ package main
 import (
     "fmt"
     "os/exec"
+    "os"
+    "bytes"
+    "unsafe"
+    "strings"
+    "strconv"
 )
 
 func execute(keyCommand string) {
     fullCommand := "tell Application \"Spotify\"" + keyCommand
     c := exec.Command("/usr/bin/osascript", "-e", fullCommand)
-    if err := c.Run(); err != nil {
+    defer c.Wait()
+    if err := c.Start(); err != nil {
         fmt.Println(keyCommand, "not available")
     }
 }
 
-func examples(commands map[string]string){
-    /*
-        play current song
-            execute(commands["play"])
+// Volume needs a seperate command because it needs a conversion from
+// io.Reader to string. Also we need the out, _ command so I'll seperate it
+// for now.
+func getVolume() string{
+    keyCommand := "to sound volume as integer"
+    fullCommand := "tell Application \"Spotify\"" + keyCommand
+    c := exec.Command("/usr/bin/osascript", "-e", fullCommand)
+    defer c.Wait()
+    out, _ := c.StdoutPipe()
+    if err := c.Start(); err != nil {
+        fmt.Println(keyCommand, "not available")
+    }
 
-        playTrack, and then append Track Number
-            execute(fmt.Sprintf(commands["playTrack"], "2lFTzUnuGaWlWHJQokjRyb"))
-    */
-    execute(fmt.Sprintf(commands["playTrack"], "2lFTzUnuGaWlWHJQokjRyb"))
+    // Conversion from io.Reader to string
+    buf := new(bytes.Buffer)
+    buf.ReadFrom(out)
+    b := buf.Bytes()
+    s := *(*string)(unsafe.Pointer(&b))
+    return s
+}
+
+func format(command, key string) string {
+    return fmt.Sprintf(command, key)
 }
 
 func main() {
@@ -33,6 +53,57 @@ func main() {
     commands["playPause"] = "to playpause"
     commands["playTrack"] = "to play track \"spotify:track:%s\""
     commands["playPlaylist"] = "to play track \"spotify:user:ni_co:playlist:%s\""
+    commands["shuffleOn"] = "to set repeating to true"
+    commands["shuffleOff"] = "to set repeating to false"
+    commands["volumeUp"] = "to set sound volume to %s"
     commands["quit"] = "to quit"
-    examples(commands)
+
+    if(len(os.Args) > 1) {
+        if(os.Args[1] == "play"){
+            if(len(os.Args) == 2){
+                execute(commands["play"])
+            } else {
+                execute(format(commands["playTrack"], os.Args[2]))
+            }
+        } else if(os.Args[1] == "pause") {
+            execute(commands["pause"])
+        } else if(os.Args[1] == "playlist"){
+            execute(format(commands["playPlaylist"], os.Args[2]))
+        } else if(os.Args[1] == "next"){
+            execute(commands["nextTrack"])
+        } else if(os.Args[1] == "previous"){
+            execute(commands["previousTrack"])
+        } else if(os.Args[1] == "volume"){
+            fmt.Print(getVolume())
+        } else if(os.Args[1] == "up") {
+            words := strings.Fields(getVolume())
+            volume := words[0]
+            inputValue, err := strconv.Atoi(volume)
+            if err != nil {
+                fmt.Println(err)
+            }
+            outputValue := strconv.Itoa(inputValue + 10)
+            execute(format(commands["volumeUp"], outputValue))
+        } else if(os.Args[1] == "down") {
+            words := strings.Fields(getVolume())
+            volume := words[0]
+            inputValue, err := strconv.Atoi(volume)
+            if err != nil {
+                fmt.Println(err)
+            }
+            outputValue := strconv.Itoa(inputValue - 10)
+            execute(format(commands["volumeUp"], outputValue))
+        } else {
+            fmt.Println("Command not found")
+        }
+    } else {
+        fmt.Println("Spotify Options")
+        fmt.Println("   play           = Start playing Spotify")
+        fmt.Println("   play <URI>     = Start playing specified Spotify URI")
+        fmt.Println("   playlist <URI> = Start playing playlist Spotify URI")
+        fmt.Println("   pause          = Pause Spotify")
+        fmt.Println("   next           = Play next song")
+        fmt.Println("   previous       = Play previous song")
+        fmt.Println("   volume         = Get volume of Spotify")
+    }
 }
