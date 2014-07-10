@@ -106,6 +106,7 @@ func main() {
     commands["shuffleOn"] = "to set shuffling to true"
     commands["shuffleOff"] = "to set shuffling to false"
     commands["volumeUp"] = "to set sound volume to %s"
+    commands["open"] = "to open"
     commands["quit"] = "to quit"
 
     if(len(os.Args) > 1) {
@@ -166,6 +167,10 @@ func main() {
                     }
                 }
             }
+        } else if(os.Args[1] == "open"){
+            execute(commands["open"])
+        } else if(os.Args[1] == "quit"){
+            execute(commands["quit"])
         } else {
             fmt.Println("Command not found")
         }
@@ -184,5 +189,7 @@ func main() {
         fmt.Println("   volume <amount>        = Set volume by Amount")
         fmt.Println("   up                     = Increase volume by 10%")
         fmt.Println("   down                   = Decrease volume by 10%")
+        fmt.Println("   open                   = Open Spotify")
+        fmt.Println("   quit                   = Quit Spotify")
     }
 }

@@ -5,6 +5,8 @@ Command-line Spotify client for Mac. It uses `osascript` to command, and run the
 
 Quick and easy to export it as a binary, and to export it to `/usr/bin/`. Run:
 
+Use the `make` command, or:
+
 ```
 go build src/spotify.go
 sudo mv ./spotify /usr/bin
@@ -28,4 +30,6 @@ volume                 = Get volume of Spotify
 volume <amount>        = Set volume by Amount
 up                     = Increase volume by 10%
 down                   = Decrease volume by 10%
+open                   = Open Spotify
+quit                   = Quit Spotify
 ```
