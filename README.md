@@ -9,7 +9,7 @@ Use the `make` command, or:
 
 ```
 go build src/spotify.go
-sudo mv ./spotify /usr/bin
+sudo mv spotify /usr/bin
 ```
 
 Then you can use `spotify` in the command line. This is not done yet - I'm going to be adding things like uri search, etc. 
