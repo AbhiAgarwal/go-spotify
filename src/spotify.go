@@ -8,6 +8,10 @@ import (
     "unsafe"
     "strings"
     "strconv"
+    "net/http"
+    "log"
+    "io/ioutil"
+    "github.com/bitly/go-simplejson"
 )
 
 func execute(keyCommand string) {
@@ -49,6 +53,39 @@ func changeVolume(commands map[string]string, volumeAmount int) {
     }
     outputValue := strconv.Itoa(inputValue + volumeAmount)
     execute(format(commands["volumeUp"], outputValue))
+}
+
+func searchTrack(trackName string) {
+    url := "http://ws.spotify.com/search/1/track.json?q=" + trackName
+    res, err := http.Get(url)
+    if err != nil { log.Fatalln(err) }
+    body, err := ioutil.ReadAll(res.Body)
+    if err != nil { log.Fatalln(err) }
+    js, err := simplejson.NewJson(body)
+    if err != nil { log.Fatalln(err) }
+
+    songChoices := make([]string, 5)
+    for i := 0; i < 5; i++ {
+        allRange := js.Get("tracks").GetIndex(i)
+        trackName := allRange.Get("name").MustString()
+        artistName := allRange.Get("artists").GetIndex(0).Get("name").MustString()
+        hrefNumber := allRange.Get("href").MustString()
+
+        fmt.Printf("%d. ", i)
+        fmt.Println("Track Name: " + trackName + ",", "Artist Name: " + artistName)
+        songChoices[i] = hrefNumber
+    }
+
+    fmt.Print("Input song choice: ")
+    var choiceNumber int
+    fmt.Scanf("%d", &choiceNumber)
+
+    if(choiceNumber >= 5 || choiceNumber < 0){
+        choiceNumber = 0
+    }
+
+    songName := format("to play track \"%s\"", songChoices[choiceNumber])
+    execute(songName)
 }
 
 func format(command, key string) string {
@@ -117,22 +154,35 @@ func main() {
                     execute(commands["repeatOff"])
                 }
             }
+        } else if(os.Args[1] == "search"){
+            if(len(os.Args) == 2){
+                fmt.Println("search song <song>")
+            } else {
+                if(os.Args[2] == "song"){
+                    if(len(os.Args) == 4){
+                        searchTrack(os.Args[3])
+                    } else {
+                        fmt.Println("Please enter a song!")
+                    }
+                }
+            }
         } else {
             fmt.Println("Command not found")
         }
     } else {
         fmt.Println("Spotify Options")
-        fmt.Println("   play             = Start playing Spotify")
-        fmt.Println("   play <uri>       = Start playing specified Spotify URI")
-        fmt.Println("   playlist <uri>   = Start playing playlist Spotify URI")
-        fmt.Println("   pause            = Pause Spotify")
-        fmt.Println("   next             = Play next song")
-        fmt.Println("   previous         = Play previous song")
-        fmt.Println("   shuffle <on/off> = Shuffle on or off?")
-        fmt.Println("   repeat <on/off>  = Repeat on or off?")
-        fmt.Println("   volume           = Get volume of Spotify")
-        fmt.Println("   volume <amount>  = Set volume by Amount")
-        fmt.Println("   up               = Increase volume by 10%")
-        fmt.Println("   down             = Decrease volume by 10%")
+        fmt.Println("   play                   = Start playing Spotify")
+        fmt.Println("   play <uri>             = Start playing specified Spotify URI")
+        fmt.Println("   playlist <uri>         = Start playing playlist Spotify URI")
+        fmt.Println("   search song <song>     = Search a particular <song>")
+        fmt.Println("   pause                  = Pause Spotify")
+        fmt.Println("   next                   = Play next song")
+        fmt.Println("   previous               = Play previous song")
+        fmt.Println("   shuffle <on/off>       = Shuffle on or off?")
+        fmt.Println("   repeat <on/off>        = Repeat on or off?")
+        fmt.Println("   volume                 = Get volume of Spotify")
+        fmt.Println("   volume <amount>        = Set volume by Amount")
+        fmt.Println("   up                     = Increase volume by 10%")
+        fmt.Println("   down                   = Decrease volume by 10%")
     }
 }
