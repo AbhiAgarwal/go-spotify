@@ -19,6 +19,7 @@ Then you can use `spotify` in the command line. This is not done yet - I'm going
 
 ```   
 play                   = Start playing Spotify
+track                  = Gets current track
 play <uri>             = Start playing specified Spotify URI
 playlist <uri>         = Start playing playlist Spotify URI
 search song <song>     = Search a particular <song>
