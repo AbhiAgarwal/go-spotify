@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -55,7 +54,7 @@ func ChangeVolume(commands map[string]string, volumeAmount int) {
 	Execute(Format(commands["volumeUp"], outputValue))
 }
 
-func GetCurrentTrack() {
+func GetCurrentTrack() string {
 	keyCommand := "to name of current track"
 	fullCommand := "tell Application \"Spotify\"" + keyCommand
 	c := exec.Command("/usr/bin/osascript", "-e", fullCommand)
