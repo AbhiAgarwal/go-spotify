@@ -8,21 +8,7 @@ import (
 )
 
 func main() {
-	commands := make(map[string]string)
-	commands["play"] = "to play"
-	commands["nextTrack"] = "to next track"
-	commands["previousTrack"] = "to previous track"
-	commands["pause"] = "to pause"
-	commands["playPause"] = "to playpause"
-	commands["playTrack"] = "to play track \"spotify:track:%s\""
-	commands["playPlaylist"] = "to play track \"spotify:user:ni_co:playlist:%s\""
-	commands["repeatOn"] = "to set repeating to true"
-	commands["repeatOff"] = "to set repeating to false"
-	commands["shuffleOn"] = "to set shuffling to true"
-	commands["shuffleOff"] = "to set shuffling to false"
-	commands["volumeUp"] = "to set sound volume to %s"
-	commands["open"] = "to open"
-	commands["quit"] = "to quit"
+	commands := spotify.Commands()
 
 	if len(os.Args) > 1 {
 		if os.Args[1] == "play" {
