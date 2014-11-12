@@ -1,14 +1,15 @@
 Go Spotify
 ==========
 
-Command-line Spotify client for Mac. It uses `osascript` to command, and run the commands. Will be building more ontop of this in the future. Just a quick prototype.
+Command-line Spotify client and library for Mac. It uses `osascript` to command, and run the commands. Will be building more ontop of this in the future. Just a quick prototype.
 
-Quick and easy to export it as a binary, and to export it to `/usr/bin/`. Run:
+Quick and easy to export it as a binary, and to export it to `/usr/bin/`. This binary file consists of an example application that allows you to use the command line `spotify` client that is built ontop of this library. Run:
 
 Use the `make` command, or:
 
 ```
-go build src/spotify.go
+go build examples/commands.go
+mv ./commands ./spotify
 sudo mv ./spotify /usr/bin/
 ```
 

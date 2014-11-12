@@ -7,4 +7,5 @@ import (
 
 func main() {
 	currentTrack := spotify.GetCurrentTrack()
+	fmt.Print(currentTrack)
 }

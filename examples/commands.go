@@ -31,6 +31,8 @@ func main() {
 			} else {
 				spotify.Execute(spotify.Format(commands["playTrack"], os.Args[2]))
 			}
+		} else if os.Args[1] == "track" {
+			fmt.Print(spotify.GetCurrentTrack())
 		} else if os.Args[1] == "pause" {
 			spotify.Execute(commands["pause"])
 		} else if os.Args[1] == "playlist" {
@@ -92,6 +94,7 @@ func main() {
 	} else {
 		fmt.Println("Spotify Options")
 		fmt.Println("   play                   = Start playing Spotify")
+		fmt.Println("   track		  = Get your current track")
 		fmt.Println("   play <uri>             = Start playing specified Spotify URI")
 		fmt.Println("   playlist <uri>         = Start playing playlist Spotify URI")
 		fmt.Println("   search song <song>     = Search a particular <song>")
