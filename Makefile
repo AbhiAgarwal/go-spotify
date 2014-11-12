@@ -1,3 +1,3 @@
 all:
-	go build src/spotify.go
+	go build spotify.go
 	sudo mv ./spotify /usr/bin/
