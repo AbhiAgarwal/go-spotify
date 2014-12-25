@@ -54,6 +54,18 @@ func GetVolume() string {
 	return GetValue("to sound volume as integer")
 }
 
+func GetCurrentTrack() string {
+	return GetValue("to name of current track")
+}
+
+func GetCurrentAlbum() string {
+	return GetValue("to album of current track")
+}
+
+func GetCurrentArtist() string {
+	return GetValue("to artist of current track")
+}
+
 func ChangeVolume(commands map[string]string, volumeAmount int) {
 	words := strings.Fields(GetVolume())
 	volume := words[0]
@@ -63,10 +75,6 @@ func ChangeVolume(commands map[string]string, volumeAmount int) {
 	}
 	outputValue := strconv.Itoa(inputValue + volumeAmount)
 	Execute(Format(commands["volumeUp"], outputValue))
-}
-
-func GetCurrentTrack() string {
-	return GetValue("to name of current track")
 }
 
 func SearchTrack(trackName string) {
@@ -111,6 +119,7 @@ func SearchTrack(trackName string) {
 func Commands() map[string]string {
 	commands := make(map[string]string)
 	commands["play"] = "to play"
+	commands["playpause"] = "to playpause"
 	commands["nextTrack"] = "to next track"
 	commands["previousTrack"] = "to previous track"
 	commands["pause"] = "to pause"
