@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/bitly/go-simplejson"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -22,11 +23,16 @@ func Execute(keyCommand string) {
 	}
 }
 
-// Volume needs a seperate command because it needs a conversion from
-// io.Reader to string. Also we need the out, _ command so I'll seperate it
-// for now.
-func GetVolume() string {
-	keyCommand := "to sound volume as integer"
+// Conversion from io.Reader to string
+func ReaderToString(out io.ReadCloser) string {
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(out)
+	b := buf.Bytes()
+	s := *(*string)(unsafe.Pointer(&b))
+	return s
+}
+
+func GetValue(keyCommand string) string {
 	fullCommand := "tell Application \"Spotify\"" + keyCommand
 	c := exec.Command("/usr/bin/osascript", "-e", fullCommand)
 	defer c.Wait()
@@ -34,13 +40,18 @@ func GetVolume() string {
 	if err := c.Start(); err != nil {
 		fmt.Println(keyCommand, "not available")
 	}
+	return ReaderToString(out)
+}
 
-	// Conversion from io.Reader to string
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(out)
-	b := buf.Bytes()
-	s := *(*string)(unsafe.Pointer(&b))
-	return s
+func Format(command, key string) string {
+	return fmt.Sprintf(command, key)
+}
+
+// Volume needs a seperate command because it needs a conversion from
+// io.Reader to string. Also we need the out, _ command so I'll seperate it
+// for now.
+func GetVolume() string {
+	return GetValue("to sound volume as integer")
 }
 
 func ChangeVolume(commands map[string]string, volumeAmount int) {
@@ -55,21 +66,7 @@ func ChangeVolume(commands map[string]string, volumeAmount int) {
 }
 
 func GetCurrentTrack() string {
-	keyCommand := "to name of current track"
-	fullCommand := "tell Application \"Spotify\"" + keyCommand
-	c := exec.Command("/usr/bin/osascript", "-e", fullCommand)
-	defer c.Wait()
-	out, _ := c.StdoutPipe()
-	if err := c.Start(); err != nil {
-		fmt.Println(keyCommand, "not available")
-	}
-
-	// Conversion from io.Reader to string
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(out)
-	b := buf.Bytes()
-	s := *(*string)(unsafe.Pointer(&b))
-	return s
+	return GetValue("to name of current track")
 }
 
 func SearchTrack(trackName string) {
@@ -109,10 +106,6 @@ func SearchTrack(trackName string) {
 
 	songName := Format("to play track \"%s\"", songChoices[choiceNumber])
 	Execute(songName)
-}
-
-func Format(command, key string) string {
-	return fmt.Sprintf(command, key)
 }
 
 func Commands() map[string]string {
