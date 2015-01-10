@@ -37,7 +37,7 @@ func gui() {
 		playButton,
 		rightButton)
 
-	w := ui.NewWindow("Spotify Client", 100, 25, stack)
+	w := ui.NewWindow("Spotify Client", 90, 25, stack)
 	w.OnClosing(func() bool {
 		ui.Stop()
 		return true
