@@ -1,4 +1,12 @@
-all:
+
+all: commands
+
+commands: examples/commands.go
 	go build examples/commands.go
-	mv ./commands ./spotify
-	sudo mv ./spotify /usr/bin/
+
+install: all
+	mv commands /usr/bin/spotify
+
+.PHONY = clean
+clean:
+	rm commands
